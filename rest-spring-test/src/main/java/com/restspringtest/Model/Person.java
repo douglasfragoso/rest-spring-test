@@ -8,13 +8,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @Table(name = "tb_person")
 public class Person implements Serializable {
@@ -37,5 +33,18 @@ public class Person implements Serializable {
 
     @Column(name = "gender", length = 10)
     private String gender;
+
+    @Column(name = "email", length = 50)
+    private String email;
     
+    public Person() {
+    }
+
+    public Person(String firstName, String lastName, String address, String gender, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.address = address;
+        this.gender = gender;
+        this.email = email;
+    }
 }

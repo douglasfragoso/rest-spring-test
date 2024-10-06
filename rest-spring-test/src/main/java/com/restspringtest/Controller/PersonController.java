@@ -31,6 +31,11 @@ public class PersonController {
         return ResponseEntity.status(HttpStatus.OK).body(personService.findById(id));
     }
 
+    @GetMapping(value = "/id/{id}")
+     public ResponseEntity<Person> findByEmail(@PathVariable("email") String email) {
+        return ResponseEntity.status(HttpStatus.OK).body(personService.findByEmail(email));
+    }
+
     @GetMapping
     public ResponseEntity<Page<Person>> findAll(
         @PageableDefault(size = 10, page = 0, sort = { "id" }, direction = Direction.ASC) Pageable pageable) {

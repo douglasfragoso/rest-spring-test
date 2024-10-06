@@ -24,6 +24,13 @@ public class PersonService {
     }
 
     @Transactional(readOnly = true)
+    public Person findByEmail(String email) {
+        Person client = personRepository.findByEmail(email)
+                .orElseThrow(() -> new ExceptionBusinessRules("Client not found, id does not exist: " + email));
+        return client;
+    }
+
+    @Transactional(readOnly = true)
     public Page<Person> findAll(Pageable page) {
         Page<Person> client = personRepository.findAll(page);
         return client;
@@ -52,7 +59,7 @@ public class PersonService {
         try {
             if (personRepository.existsById(person.getId()) == true)
                 personRepository.updatePerson(person.getFirstName(), person.getLastName(), person.getAddress(),
-                        person.getGender(), person.getId());
+                        person.getGender(), person.getEmail(), person.getId());
             return person;
         } catch (Exception e) {
             throw new ExceptionBusinessRules("Person not found, id does not exist: " + person.getId());
