@@ -1,5 +1,7 @@
 package com.restspringtest.Services;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +40,10 @@ public class PersonService {
 
     @Transactional
     public Person save(Person person) {
+        Optional<Person> savedPerson = personRepository.findByEmail(person.getEmail());
+        if (savedPerson.isPresent()) {
+            throw new ExceptionBusinessRules("Email already registered: " + person.getEmail());
+        }
         personRepository.save(person);
         return person;
     }
