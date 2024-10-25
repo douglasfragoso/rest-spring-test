@@ -31,7 +31,7 @@ public class PersonController {
         return ResponseEntity.status(HttpStatus.OK).body(personService.findById(id));
     }
 
-    @GetMapping(value = "/id/{id}")
+    @GetMapping(value = "/email/{email}")
      public ResponseEntity<Person> findByEmail(@PathVariable("email") String email) {
         return ResponseEntity.status(HttpStatus.OK).body(personService.findByEmail(email));
     }
@@ -55,7 +55,8 @@ public class PersonController {
 
     @DeleteMapping(value = "/id/{id}")
     public ResponseEntity<String> deleteById(@PathVariable("id") Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(personService.deleteById(id));
+        personService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(personService.deleteById(id));
     }
 
 }

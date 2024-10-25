@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import com.restspringtest.Model.Person;
 import com.restspringtest.Repository.PersonRepository;
 import com.restspringtest.Services.PersonService;
+import com.restspringtest.Services.Exception.ExceptionBusinessRules;
 
 import jakarta.persistence.EntityManager;
 
@@ -73,6 +74,20 @@ public class PersonServiceTest {
         verify(personRepository, never()).save(any());
     }
 
+    
+    @Test
+    void  testGivenPersonExistEmail_whenSave_ThenReturPerson() {
+        // given / arrange
+        given(personRepository.findByEmail(anyString())).willReturn(Optional.of(person0));
+
+        // when / act
+        Person savedPerson = personService.findByEmail("jhon@email.com");
+
+        // then / assert
+        assertNotNull(savedPerson);
+        assertEquals("John", savedPerson.getFirstName());
+    }
+
     @Test
     void testGivenPersonList_whenFindAll_ThenReturnPersonList() {
         // given / arrange
@@ -119,6 +134,18 @@ public class PersonServiceTest {
     }
 
     @Test
+    void testGivenPersonId_whenFindById_ThenThrowsException() {
+        // given / arrange
+        given(personRepository.findById(anyLong())).willThrow(new ExceptionBusinessRules("Person not found"));
+
+        // when / act & then / assert
+        Exception exception = assertThrows(ExceptionBusinessRules.class, () -> personService.findById(1L));
+
+        // Verifica se a mensagem da exceção está correta
+        assertEquals("Person not found", exception.getMessage());
+    }
+
+    @Test
     void testGivenPersonId_whenUpdate_ThenReturnUpdatedPerson() {
         // given / arrange
         Person person1 = new Person("John2", "Doe2", "Street2", "M2", "john@email.com");
@@ -138,6 +165,7 @@ public class PersonServiceTest {
         verify(personRepository, times(1)).updatePerson(
                 "John2", "Doe2", "Street2", "M2", "john@email.com", 1L);
     }
+
 
     @Test
     void testGivenPersonId_whenDeleteById_thenPersonDeletedSuccessfully() {
