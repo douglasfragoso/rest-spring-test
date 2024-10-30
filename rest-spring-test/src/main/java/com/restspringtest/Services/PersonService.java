@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.restspringtest.Model.Person;
 import com.restspringtest.Repository.PersonRepository;
+import com.restspringtest.Services.Exception.DatabaseException;
 import com.restspringtest.Services.Exception.ExceptionBusinessRules;
 
 @Service
@@ -42,7 +43,7 @@ public class PersonService {
     public Person save(Person person) {
         Optional<Person> savedPerson = personRepository.findByEmail(person.getEmail());
         if (savedPerson.isPresent()) {
-            throw new ExceptionBusinessRules("Email already registered: " + person.getEmail());
+            throw new DatabaseException("Email already registered: " + person.getEmail());
         }
         personRepository.save(person);
         return person;

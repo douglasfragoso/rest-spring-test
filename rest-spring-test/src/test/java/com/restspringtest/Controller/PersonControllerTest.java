@@ -29,201 +29,200 @@ import com.restspringtest.Services.Exception.ExceptionBusinessRules;
 @WebMvcTest
 public class PersonControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+        @Autowired
+        private ObjectMapper objectMapper;
 
-    @MockBean
-    private PersonService personService;
+        @MockBean
+        private PersonService personService;
 
-    private Person person;
+        private Person person;
 
-    @BeforeEach
-    // given / arrange
-    public void setUp() {
-        person = new Person("John", "Doe", "Street", "M", "john@email.com");
-    }
-
-    @Test
-    void testGivenPersonObject_whenSave_ThenReturnPerson() throws JsonProcessingException, Exception {
+        @BeforeEach
         // given / arrange
-        given(personService.save(any(Person.class))).willAnswer((invocation) -> invocation.getArgument(0));
+        public void setUp() {
+                person = new Person("John", "Doe", "Street", "M", "john@email.com");
+        }
 
-        // when / act
-        ResultActions response = mockMvc.perform(post("/person")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(person)));
+        @Test
+        void testGivenPersonObject_whenSave_ThenReturnPerson() throws JsonProcessingException, Exception {
+                // given / arrange
+                given(personService.save(any(Person.class))).willAnswer((invocation) -> invocation.getArgument(0));
 
-        // then / assert
-        response.andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.firstName").value(person.getFirstName()))
-                .andExpect(jsonPath("$.lastName").value(person.getLastName()))
-                .andExpect(jsonPath("$.address").value(person.getAddress()))
-                .andExpect(jsonPath("$.gender").value(person.getGender()))
-                .andExpect(jsonPath("$.email").value(person.getEmail()));
+                // when / act
+                ResultActions response = mockMvc.perform(post("/person")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(person)));
 
-    }
+                // then / assert
+                response.andDo(print())
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.firstName").value(person.getFirstName()))
+                                .andExpect(jsonPath("$.lastName").value(person.getLastName()))
+                                .andExpect(jsonPath("$.address").value(person.getAddress()))
+                                .andExpect(jsonPath("$.gender").value(person.getGender()))
+                                .andExpect(jsonPath("$.email").value(person.getEmail()));
 
-    @Test
-    void testListPersonObject_whenFindAlll_ThenReturnListPerson() throws JsonProcessingException, Exception {
-        // given / arrange
-        Person person2 = new Person("John1", "Doe1", "Street1", "M", "john1@email.com");
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Person> personPage = new PageImpl<>(List.of(person, person2), pageable, 2);
+        }
 
-        given(personService.findAll(any(Pageable.class))).willReturn(personPage);
+        @Test
+        void testListPersonObject_whenFindAlll_ThenReturnListPerson() throws JsonProcessingException, Exception {
+                // given / arrange
+                Person person2 = new Person("John1", "Doe1", "Street1", "M", "john1@email.com");
+                Pageable pageable = PageRequest.of(0, 10);
+                Page<Person> personPage = new PageImpl<>(List.of(person, person2), pageable, 2);
 
-        // when / act
-        ResultActions response = mockMvc.perform(get("/person")
-                .param("page", "0")
-                .param("size", "10")
-                .contentType("application/json"));
+                given(personService.findAll(any(Pageable.class))).willReturn(personPage);
 
-        // then / assert
-        response.andExpect(status().isOk())
-                .andDo(print())
-                .andExpect(jsonPath("$.totalElements").value(personPage.getTotalElements()));
-    }
+                // when / act
+                ResultActions response = mockMvc.perform(get("/person")
+                                .param("page", "0")
+                                .param("size", "10")
+                                .contentType("application/json"));
 
-    @Test
-    void testGivenPersonId_whenFindById_ThenReturnPerson() throws JsonProcessingException, Exception {
-        // given / arrange
-        Long id = 1L;
-        given(personService.findById(id)).willReturn(person); // Retorna diretamente a entidade 'person'
+                // then / assert
+                response.andExpect(status().isOk())
+                                .andDo(print())
+                                .andExpect(jsonPath("$.totalElements").value(personPage.getTotalElements()));
+        }
 
-        // when / act
-        ResultActions response = mockMvc.perform(get("/person/id/{id}", id));
+        @Test
+        void testGivenPersonId_whenFindById_ThenReturnPerson() throws JsonProcessingException, Exception {
+                // given / arrange
+                Long id = 1L;
+                given(personService.findById(id)).willReturn(person); // Retorna diretamente a entidade 'person'
 
-        // then / assert
-        response.andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value(person.getFirstName()))
-                .andExpect(jsonPath("$.lastName").value(person.getLastName()))
-                .andExpect(jsonPath("$.address").value(person.getAddress()))
-                .andExpect(jsonPath("$.gender").value(person.getGender()))
-                .andExpect(jsonPath("$.email").value(person.getEmail()));
-    }
+                // when / act
+                ResultActions response = mockMvc.perform(get("/person/id/{id}", id));
 
-    @Test
-    void testGivenPersonId_whenFindById_ThenReturnNotFound() throws JsonProcessingException, Exception {
-        // given / arrange
-        Long id = 1L;
-        given(personService.findById(id)).willThrow(ExceptionBusinessRules.class);
+                // then / assert
+                response.andDo(print())
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.firstName").value(person.getFirstName()))
+                                .andExpect(jsonPath("$.lastName").value(person.getLastName()))
+                                .andExpect(jsonPath("$.address").value(person.getAddress()))
+                                .andExpect(jsonPath("$.gender").value(person.getGender()))
+                                .andExpect(jsonPath("$.email").value(person.getEmail()));
+        }
 
-        // when / act
-        ResultActions response = mockMvc.perform(get("/person/id/{id}", id));
+        @Test
+        void testGivenPersonId_whenFindById_ThenReturnNotFound() throws JsonProcessingException, Exception {
+                // given / arrange
+                Long id = 1L;
+                given(personService.findById(id)).willThrow(ExceptionBusinessRules.class);
 
-        // then / assert
-        response.andDo(print())
-                .andExpect(status().isNotFound());
-    }
+                // when / act
+                ResultActions response = mockMvc.perform(get("/person/id/{id}", id));
 
-    @Test
-    void testGivenPersonId_whenFindByEmail_ThenReturnPerson() throws JsonProcessingException, Exception {
-        // given / arrange
-        String email = "john@email.com";
-        given(personService.findByEmail(email)).willReturn(person);
+                // then / assert
+                response.andDo(print())
+                                .andExpect(status().isNotFound());
+        }
 
-        // when / act
-        ResultActions response = mockMvc.perform(get("/person/email/{email}", email));
+        @Test
+        void testGivenPersonId_whenFindByEmail_ThenReturnPerson() throws JsonProcessingException, Exception {
+                // given / arrange
+                String email = "john@email.com";
+                given(personService.findByEmail(email)).willReturn(person);
 
-        // then / assert
-        response.andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value(person.getFirstName()))
-                .andExpect(jsonPath("$.lastName").value(person.getLastName()))
-                .andExpect(jsonPath("$.address").value(person.getAddress()))
-                .andExpect(jsonPath("$.gender").value(person.getGender()))
-                .andExpect(jsonPath("$.email").value(person.getEmail()));
-    }
+                // when / act
+                ResultActions response = mockMvc.perform(get("/person/email/{email}", email));
 
-    @Test
-    void testGivenPersonId_whenFindByEmail_ThenReturnNotFound() throws JsonProcessingException, Exception {
-        // given / arrange
-        String email = "john@email.com";
-        given(personService.findByEmail(email)).willThrow(ExceptionBusinessRules.class);
+                // then / assert
+                response.andDo(print())
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.firstName").value(person.getFirstName()))
+                                .andExpect(jsonPath("$.lastName").value(person.getLastName()))
+                                .andExpect(jsonPath("$.address").value(person.getAddress()))
+                                .andExpect(jsonPath("$.gender").value(person.getGender()))
+                                .andExpect(jsonPath("$.email").value(person.getEmail()));
+        }
 
-        // when / act
-        ResultActions response = mockMvc.perform(get("/person/email/{email}", email));
+        @Test
+        void testGivenPersonId_whenFindByEmail_ThenReturnNotFound() throws JsonProcessingException, Exception {
+                // given / arrange
+                String email = "john@email.com";
+                given(personService.findByEmail(email)).willThrow(ExceptionBusinessRules.class);
 
-        // then / assert
-        response.andDo(print())
-                .andExpect(status().isNotFound());
-    }
+                // when / act
+                ResultActions response = mockMvc.perform(get("/person/email/{email}", email));
 
+                // then / assert
+                response.andDo(print())
+                                .andExpect(status().isNotFound());
+        }
 
-    @Test
-    void testGivenUpdatePerson_whenUpdate_ThenReturnUpdatePerson() throws JsonProcessingException, Exception {
-        // given / arrange
-        Long id = 1L;
-        given(personService.findById(id)).willReturn(person);
-        given(personService.update(any(Person.class))).willAnswer((invocation) -> invocation.getArgument(0));
+        @Test
+        void testGivenUpdatePerson_whenUpdate_ThenReturnUpdatePerson() throws JsonProcessingException, Exception {
+                // given / arrange
+                Long id = 1L;
+                given(personService.findById(id)).willReturn(person);
+                given(personService.update(any(Person.class))).willAnswer((invocation) -> invocation.getArgument(0));
 
-        // when / act
-        Person updatePerson = new Person("John2", "Doe2", "Street2", "M", "jhon@email.com");
+                // when / act
+                Person updatePerson = new Person("John2", "Doe2", "Street2", "M", "jhon@email.com");
 
-        ResultActions response = mockMvc.perform(put("/person")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(updatePerson)));
+                ResultActions response = mockMvc.perform(put("/person")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(updatePerson)));
 
-        // then / assert
-        // then / assert
-        response.andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().string("Profile updated successfully"));
-    }
+                // then / assert
+                // then / assert
+                response.andDo(print())
+                                .andExpect(status().isOk())
+                                .andExpect(content().string("Profile updated successfully"));
+        }
 
-    @Test
-    void testGivenUpdatePerson_whenUpdate_ThenReturnNotFound() throws JsonProcessingException, Exception {
-        // given / arrange
-        given(personService.update(any(Person.class)))
-                .willThrow(ExceptionBusinessRules.class);
+        @Test
+        void testGivenUpdatePerson_whenUpdate_ThenReturnNotFound() throws JsonProcessingException, Exception {
+                // given / arrange
+                given(personService.update(any(Person.class)))
+                                .willThrow(ExceptionBusinessRules.class);
 
-        // when / act
-        Person updatePerson = new Person("John2", "Doe2", "Street2", "M", "jhon@email.com"); 
+                // when / act
+                Person updatePerson = new Person("John2", "Doe2", "Street2", "M", "jhon@email.com");
 
-        ResultActions response = mockMvc.perform(put("/person")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(updatePerson)));
+                ResultActions response = mockMvc.perform(put("/person")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(updatePerson)));
 
-        // then / assert
-        response.andDo(print())
-                .andExpect(status().isNotFound());
-    }
+                // then / assert
+                response.andDo(print())
+                                .andExpect(status().isNotFound());
+        }
 
-    @Test
-    void testGivenPersonId_whenDeleteById_ThenReturnString() throws JsonProcessingException, Exception {
-        // given / arrange
-        Long id = 1L;
-        given(personService.findById(id)).willReturn(person);
-        given(personService.deleteById(id)).willReturn("Profile is deleted successfully");
+        @Test
+        void testGivenPersonId_whenDeleteById_ThenReturnString() throws JsonProcessingException, Exception {
+                // given / arrange
+                Long id = 1L;
+                given(personService.findById(id)).willReturn(person);
+                given(personService.deleteById(id)).willReturn("Profile is deleted successfully");
 
-        // when / act
-        ResultActions response = mockMvc.perform(delete("/person/id/{id}", id));
+                // when / act
+                ResultActions response = mockMvc.perform(delete("/person/id/{id}", id));
 
-        // then / assert
-        response.andDo(print())
-                .andExpect(status().isNoContent())
-                .andExpect(content().string("Profile is deleted successfully"));
-    }
+                // then / assert
+                response.andDo(print())
+                                .andExpect(status().isNoContent())
+                                .andExpect(content().string("Profile is deleted successfully"));
+        }
 
-    @Test
-    void testGivenPersonId_whenDeleteById_ThenReturnNotFound() throws JsonProcessingException, Exception {
-        // given / arrange
-        Long id = 1L;
-        given(personService.deleteById(any(Long.class)))
-                .willThrow(ExceptionBusinessRules.class);
+        @Test
+        void testGivenPersonId_whenDeleteById_ThenReturnNotFound() throws JsonProcessingException, Exception {
+                // given / arrange
+                Long id = 1L;
+                given(personService.deleteById(any(Long.class)))
+                                .willThrow(ExceptionBusinessRules.class);
 
-        // when / act
+                // when / act
 
-        ResultActions response = mockMvc.perform(delete("/person/id/{id}", id));
+                ResultActions response = mockMvc.perform(delete("/person/id/{id}", id));
 
-        // then / assert
-        response.andDo(print())
-                .andExpect(status().isNotFound());
-    }
+                // then / assert
+                response.andDo(print())
+                                .andExpect(status().isNotFound());
+        }
 
 }
