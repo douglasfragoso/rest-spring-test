@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.restspringtest.Model.Person;
 import com.restspringtest.Repository.PersonRepository;
 import com.restspringtest.Services.Exception.DatabaseException;
-import com.restspringtest.Services.Exception.ExceptionBusinessRules;
 
 @Service
 public class PersonService {
@@ -21,16 +20,16 @@ public class PersonService {
 
     @Transactional(readOnly = true)
     public Person findById(Long id) {
-        Person client = personRepository.findById(id)
-                .orElseThrow(() -> new ExceptionBusinessRules("Client not found, id does not exist: " + id));
-        return client;
+        Person person = personRepository.findById(id)
+                .orElseThrow(() -> new DatabaseException("Person not found, id does not exist: " + id));
+        return person;
     }
 
     @Transactional(readOnly = true)
     public Person findByEmail(String email) {
-        Person client = personRepository.findByEmail(email)
-                .orElseThrow(() -> new ExceptionBusinessRules("Client not found, id does not exist: " + email));
-        return client;
+        Person person = personRepository.findByEmail(email)
+                .orElseThrow(() -> new DatabaseException("Person not found, id does not exist: " + email));
+        return person;
     }
 
     @Transactional(readOnly = true)
@@ -50,27 +49,22 @@ public class PersonService {
     }
 
     @Transactional
-    public String deleteById(Long id) {
-        try {
-            if (personRepository.existsById(id) == true)
-                personRepository.deleteById(id);
-            return "Person deleted successfully";
-        } catch (Exception e) {
-            throw new ExceptionBusinessRules("Person not found, id does not exist: " + id);
-        }
-
-    }
-
-    @Transactional
     public Person update(Person person) {
         try {
             if (personRepository.existsById(person.getId()) == true)
-                personRepository.updatePerson(person.getFirstName(), person.getLastName(), person.getAddress(),
-                        person.getGender(), person.getEmail(), person.getId());
+                personRepository.updatePerson(person.getId(), person.getFirstName(), person.getLastName(),
+                        person.getAddress(),
+                        person.getGender(), person.getEmail());
             return person;
         } catch (Exception e) {
-            throw new ExceptionBusinessRules("Person not found, id does not exist: " + person.getId());
+            throw new DatabaseException("Person not found, id does not exist: " + person.getId());
         }
+    }
+
+    @Transactional
+    public void deleteById(Long id) {
+        personRepository.findById(id).orElseThrow(() -> new DatabaseException("Client not found, id does not exist: " + id));
+        personRepository.deleteById(id);
     }
 
 }

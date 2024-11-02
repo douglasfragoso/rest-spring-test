@@ -24,16 +24,13 @@ public class Person implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public interface Update {}
-    public interface DeleteById {}
     public interface Create {}
-    public interface FindById {}
-    public interface FindByEmail {}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    @Schema(description = "Unique identifier of the person", example = "1", accessMode = AccessMode.READ_ONLY)
-    @NotNull(message = "The field id is required", groups = {DeleteById.class, FindById.class})
+    @Schema(description = "Unique identifier of the person", example = "1", required = true, accessMode = AccessMode.READ_ONLY)
+    @NotNull(message = "The field id is required", groups = {Update.class})
     private Long id;
 
     @Column(name = "first_name", length = 20)
@@ -58,7 +55,7 @@ public class Person implements Serializable {
 
     @Column(name = "email", length = 50)
     @Schema(description = "Email address of a person", example = "johndoe@example.com", required = true)
-    @NotBlank(message = "The field email is required", groups = {Create.class, Update.class, FindByEmail.class})
+    @NotBlank(message = "The field email is required", groups = {Create.class, Update.class})
     @Email(message = "The field email must be a valid email")
     private String email;
     

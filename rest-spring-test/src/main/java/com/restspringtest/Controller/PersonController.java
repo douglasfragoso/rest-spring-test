@@ -22,9 +22,6 @@ import com.restspringtest.Controller.Exception.StandartError;
 import com.restspringtest.Controller.Exception.ValidationError;
 import com.restspringtest.Model.Person;
 import com.restspringtest.Model.Person.Create;
-import com.restspringtest.Model.Person.DeleteById;
-import com.restspringtest.Model.Person.FindByEmail;
-import com.restspringtest.Model.Person.FindById;
 import com.restspringtest.Model.Person.Update;
 import com.restspringtest.Services.PersonService;
 
@@ -47,23 +44,23 @@ public class PersonController {
 
         @GetMapping(value = "/id/{id}")
         @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "Successfully find by Id", content = @Content(schema = @Schema(implementation = Person.class))),
-                        @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = StandartError.class))),
-                        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema(implementation = ValidationError.class))) })
+                        @ApiResponse(responseCode = "200", description = "Successfully find by Email", content = @Content(schema = @Schema(implementation = Person.class))),
+                        @ApiResponse(responseCode = "404", description = "Not found or No handler found", content = @Content(schema = @Schema(implementation = StandartError.class))),
+                        @ApiResponse(responseCode = "400", description = "Type mismatch", content = @Content(schema = @Schema(implementation = ValidationError.class))) })
         @Operation(summary = "Find Person", description = "Find Person by Id", tags = { "GET" })
         public ResponseEntity<Person> findById(
-                        @Validated(FindById.class) @PathVariable("id") @Parameter(description = "Unique identifier of the Person", example = "1") Long id) {
+                        @PathVariable("id") @Parameter(description = "Unique identifier of the Person", example = "1") Long id) {
                 return ResponseEntity.status(HttpStatus.OK).body(personService.findById(id));
         }
 
         @GetMapping(value = "/email/{email}")
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "Successfully find by Email", content = @Content(schema = @Schema(implementation = Person.class))),
-                        @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = StandartError.class))),
-                        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema(implementation = ValidationError.class))) })
+                        @ApiResponse(responseCode = "404", description = "Not found or No handler found", content = @Content(schema = @Schema(implementation = StandartError.class))),
+                        @ApiResponse(responseCode = "400", description = "Type mismatch", content = @Content(schema = @Schema(implementation = ValidationError.class))) })
         @Operation(summary = "Find Person", description = "Find Person by Email", tags = { "GET" })
         public ResponseEntity<Person> findByEmail(
-                        @Validated(FindByEmail.class) @PathVariable("email") @Parameter(description = "Email of the Person", example = "joe@email.com") String email) {
+                        @PathVariable("email") @Parameter(description = "Email of the Person", example = "joe@email.com") String email) {
                 return ResponseEntity.status(HttpStatus.OK).body(personService.findByEmail(email));
         }
 
@@ -77,42 +74,37 @@ public class PersonController {
                 return ResponseEntity.status(HttpStatus.OK).body(personService.findAll(pageable));
         }
 
+        @PostMapping
+        @ApiResponses({
+                        @ApiResponse(responseCode = "201", description = "Successfully created", content = @Content(schema = @Schema(implementation = Person.class))),
+                        @ApiResponse(responseCode = "400", description = "Invalid requests", content = @Content(schema = @Schema(implementation = ValidationError.class))) })
+        @Operation(summary = "Insert Person", description = "Insert Person", tags = { "POST" })
+        public ResponseEntity<Person> save(
+                        @Validated(Create.class) @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Insert Person", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Person.class), examples = @ExampleObject(value = "{\"firstName\": \"Joe\", \"lastName\": \"Doe\", \"address\": \"1234 Main St\", \"gender\": \"M\" }"))) @RequestBody Person person) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(personService.save(person));
+        }
+
         @PutMapping
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "Successfully Update", content = @Content(schema = @Schema(implementation = Person.class))),
-                        @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = StandartError.class))),
-                        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema(implementation = ValidationError.class))) })
-        @Operation(summary = "Update Person", description = "Update Person", tags = { "PUT" })
+                        @ApiResponse(responseCode = "404", description = "Not found or No handler found", content = @Content(schema = @Schema(implementation = StandartError.class))),
+                        @ApiResponse(responseCode = "400", description = "Type mismatch", content = @Content(schema = @Schema(implementation = ValidationError.class))) })
         public ResponseEntity<String> update(
-                        @Validated(Update.class) 
-                        @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Update Person", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Person.class), examples = @ExampleObject(value = "{ \"id\": \"1\", \"firstName\": \"Joe\", \"lastName\": \"Doe\", \"address\": \"1234 Main St\", \"gender\": \"M\" }"))) 
-                        @RequestBody Person person) {
+                        @Validated(Update.class) @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Update Person", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Person.class), examples = @ExampleObject(value = "{ \"id\": \"1\", \"firstName\": \"Joe\", \"lastName\": \"Doe\", \"address\": \"1234 Main St\", \"gender\": \"M\" }"))) @RequestBody Person person) {
                 personService.update(person);
                 return ResponseEntity.status(HttpStatus.OK).body("Profile updated successfully");
         }
 
-        @PostMapping
-        @ApiResponses({
-                        @ApiResponse(responseCode = "201", description = "Successfully created", content = @Content(schema = @Schema(implementation = Person.class))),
-                        @ApiResponse(responseCode = "401", description = "Invalid request, email is already used", content = @Content(schema = @Schema(implementation = StandartError.class))),
-                        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema(implementation = ValidationError.class))) })
-        @Operation(summary = "Insert Person", description = "Insert Person", tags = { "POST" })
-        public ResponseEntity<Person> save(
-                        @Validated(Create.class) 
-                        @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Insert Person", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Person.class), examples = @ExampleObject(value = "{\"firstName\": \"Joe\", \"lastName\": \"Doe\", \"address\": \"1234 Main St\", \"gender\": \"M\" }")))
-                        @RequestBody Person person) {
-                return ResponseEntity.status(HttpStatus.CREATED).body(personService.save(person));
-        }
-
         @DeleteMapping(value = "/id/{id}")
         @ApiResponses({
-                        @ApiResponse(responseCode = "204", description = "Successfully Delete", content = @Content(schema = @Schema(implementation = String.class))),
-                        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema(implementation = ValidationError.class))),
-                        @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = StandartError.class))) })
+                        @ApiResponse(responseCode = "204", description = "Successfully Delete", content = @Content(schema = @Schema(implementation = Void.class))),
+                        @ApiResponse(responseCode = "404", description = "Not found or No handler found", content = @Content(schema = @Schema(implementation = StandartError.class))),
+                        @ApiResponse(responseCode = "400", description = "Type mismatch", content = @Content(schema = @Schema(implementation = ValidationError.class))) })
         @Operation(summary = "Delete Person", description = "Delete Person", tags = { "DELETE" })
-        public ResponseEntity<String> deleteById(
-                        @Validated(DeleteById.class) @PathVariable("id") @Parameter(description = "Unique identifier of the Person", example = "1") Long id) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(personService.deleteById(id));
+        public ResponseEntity<Void> deleteById(
+                        @PathVariable("id") @Parameter(description = "Unique identifier of the Person", example = "1") Long id) {
+                personService.deleteById(id);
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
         }
 
 }

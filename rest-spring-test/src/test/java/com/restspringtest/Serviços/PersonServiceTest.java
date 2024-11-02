@@ -23,7 +23,7 @@ import org.springframework.data.domain.Pageable;
 import com.restspringtest.Model.Person;
 import com.restspringtest.Repository.PersonRepository;
 import com.restspringtest.Services.PersonService;
-import com.restspringtest.Services.Exception.ExceptionBusinessRules;
+import com.restspringtest.Services.Exception.DatabaseException;
 
 import jakarta.persistence.EntityManager;
 
@@ -136,10 +136,10 @@ public class PersonServiceTest {
     @Test
     void testGivenPersonId_whenFindById_ThenThrowsException() {
         // given / arrange
-        given(personRepository.findById(anyLong())).willThrow(new ExceptionBusinessRules("Person not found"));
+        given(personRepository.findById(anyLong())).willThrow(new DatabaseException("Person not found"));
 
         // when / act & then / assert
-        Exception exception = assertThrows(ExceptionBusinessRules.class, () -> personService.findById(1L));
+        Exception exception = assertThrows(DatabaseException.class, () -> personService.findById(1L));
 
         // Verifica se a mensagem da exceção está correta
         assertEquals("Person not found", exception.getMessage());
@@ -154,7 +154,7 @@ public class PersonServiceTest {
         given(personRepository.existsById(1L)).willReturn(true);
 
         doNothing().when(personRepository).updatePerson(
-                "John2", "Doe2", "Street2", "M2", "john@email.com", 1L);
+                1L, "John2", "Doe2", "Street2", "M2", "john@email.com");
 
         // when / act
         Person updatedPerson = personService.update(person1);
@@ -163,23 +163,22 @@ public class PersonServiceTest {
         assertEquals("John2", updatedPerson.getFirstName());
         assertEquals(person1.getEmail(), updatedPerson.getEmail());
         verify(personRepository, times(1)).updatePerson(
-                "John2", "Doe2", "Street2", "M2", "john@email.com", 1L);
+            1L, "John2", "Doe2", "Street2", "M2", "john@email.com");
     }
 
 
     @Test
     void testGivenPersonId_whenDeleteById_thenPersonDeletedSuccessfully() {
         // given / arrange
-        Long personId = person0.getId();
+        Long personId = 1L;
 
-        given(personRepository.existsById(personId)).willReturn(true);
+        given(personRepository.findById(anyLong())).willReturn(Optional.of(person0));
         doNothing().when(personRepository).deleteById(personId);
 
         // when / act
-        String result = personService.deleteById(personId);
+        personService.deleteById(personId);
 
         // then / assert
-        assertEquals("Person deleted successfully", result);
         verify(personRepository, times(1)).deleteById(personId);
     }
 

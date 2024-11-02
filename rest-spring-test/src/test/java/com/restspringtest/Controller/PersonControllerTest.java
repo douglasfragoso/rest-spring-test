@@ -24,7 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restspringtest.Model.Person;
 import com.restspringtest.Services.PersonService;
-import com.restspringtest.Services.Exception.ExceptionBusinessRules;
+import com.restspringtest.Services.Exception.DatabaseException;
 
 @WebMvcTest
 public class PersonControllerTest {
@@ -111,7 +111,7 @@ public class PersonControllerTest {
         void testGivenPersonId_whenFindById_ThenReturnNotFound() throws JsonProcessingException, Exception {
                 // given / arrange
                 Long id = 1L;
-                given(personService.findById(id)).willThrow(ExceptionBusinessRules.class);
+                given(personService.findById(id)).willThrow(DatabaseException.class);
 
                 // when / act
                 ResultActions response = mockMvc.perform(get("/person/id/{id}", id));
@@ -144,7 +144,7 @@ public class PersonControllerTest {
         void testGivenPersonId_whenFindByEmail_ThenReturnNotFound() throws JsonProcessingException, Exception {
                 // given / arrange
                 String email = "john@email.com";
-                given(personService.findByEmail(email)).willThrow(ExceptionBusinessRules.class);
+                given(personService.findByEmail(email)).willThrow(DatabaseException.class);
 
                 // when / act
                 ResultActions response = mockMvc.perform(get("/person/email/{email}", email));
@@ -179,7 +179,7 @@ public class PersonControllerTest {
         void testGivenUpdatePerson_whenUpdate_ThenReturnNotFound() throws JsonProcessingException, Exception {
                 // given / arrange
                 given(personService.update(any(Person.class)))
-                                .willThrow(ExceptionBusinessRules.class);
+                                .willThrow(DatabaseException.class);
 
                 // when / act
                 Person updatePerson = new Person("John2", "Doe2", "Street2", "M", "jhon@email.com");
@@ -198,23 +198,21 @@ public class PersonControllerTest {
                 // given / arrange
                 Long id = 1L;
                 given(personService.findById(id)).willReturn(person);
-                given(personService.deleteById(id)).willReturn("Profile is deleted successfully");
+                willDoNothing().given(personService).deleteById(id);
 
                 // when / act
                 ResultActions response = mockMvc.perform(delete("/person/id/{id}", id));
 
                 // then / assert
                 response.andDo(print())
-                                .andExpect(status().isNoContent())
-                                .andExpect(content().string("Profile is deleted successfully"));
+                                .andExpect(status().isNoContent());
         }
 
         @Test
         void testGivenPersonId_whenDeleteById_ThenReturnNotFound() throws JsonProcessingException, Exception {
                 // given / arrange
                 Long id = 1L;
-                given(personService.deleteById(any(Long.class)))
-                                .willThrow(ExceptionBusinessRules.class);
+                willThrow(DatabaseException.class).given(personService).deleteById(any(Long.class));
 
                 // when / act
 

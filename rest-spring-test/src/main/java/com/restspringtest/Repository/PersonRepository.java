@@ -14,7 +14,7 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
     @Transactional
     @Modifying
     @Query(value = "UPDATE tb_person SET first_name = :firstName, last_name = :lastName, address = :address, gender = :gender, email = :email WHERE id = :id", nativeQuery = true)
-    void updatePerson(String firstName, String lastName, String address, String gender,String email, Long id);
+    void updatePerson(Long id, String firstName, String lastName, String address, String gender,String email);
 
     Optional<Person> findByEmail(String email);
 

@@ -91,7 +91,7 @@ public class PersonRepositoryTest {
         personRepository.save(person0);
 
         // when / act
-        personRepository.updatePerson("John2", "Doe2", "Street2", "M", "john@email.com", person0.getId());
+        personRepository.updatePerson(person0.getId(), "John2", "Doe2", "Street2", "M", "john@email.com");
 
         entityManager.clear();
 

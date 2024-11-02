@@ -12,3 +12,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
   defer-datasource-initialization: true # Garante a ordem correta de execução
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
