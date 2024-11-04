@@ -3,6 +3,7 @@ package com.restspringtest.Repository;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -33,16 +34,6 @@ public class PersonRepositoryTest {
     }
 
     @Test
-    void testGivenPersonObject_whenSave_ThenReturPerson() {
-        // when / act
-        Person savedPerson = personRepository.save(person0);
-
-        // then / assert
-        assertNotNull(savedPerson);
-        assertTrue(savedPerson.getId() > 0);
-    }
-
-    @Test
     void testGivenPersonList_whenFindAll_ThenReturnPersonList() {
         // given / arrange
         Person person1 = new Person("John1", "Doe1", "Street1", "M", "john1@email.com");
@@ -59,7 +50,7 @@ public class PersonRepositoryTest {
     }
 
     @Test
-    void testGivenPersonList_whenFindById_ThenReturnPersonList() {
+    void testGivenPersonList_whenFindById_ThenReturnPerson() {
         // given / arrange
         personRepository.save(person0);
 
@@ -68,7 +59,15 @@ public class PersonRepositoryTest {
 
         // then / assert
         assertNotNull(person1);
-        assertEquals(person0.getId(), person0.getId());
+        assertEquals(person0.getId(), person1.getId());
+    }
+
+    @Test
+    void testGivenPersonList_whenFindById_ThenThrowsException() {
+        // then / assert
+        assertThrows(NoSuchElementException.class, () -> {
+            personRepository.findById(99L).orElseThrow();
+        });
     }
 
     @Test
@@ -85,13 +84,31 @@ public class PersonRepositoryTest {
     }
 
     @Test
+    void testGivenPersonList_whenFindByEmail_ThenThrowsException() {
+        // then / assert
+        assertThrows(NoSuchElementException.class, () -> {
+            personRepository.findByEmail("nonexistent@email.com").orElseThrow();
+        });
+    }
+
+    @Test
+    void testGivenPersonObject_whenSave_ThenReturPerson() {
+        // when / act
+        Person savedPerson = personRepository.save(person0);
+
+        // then / assert
+        assertNotNull(savedPerson);
+        assertTrue(savedPerson.getId() > 0);
+    }
+
+    @Test
     @Transactional
     void testGivenPersonList_whenUpdate_ThenReturnPerson() {
         // given / arrange
         personRepository.save(person0);
 
         // when / act
-        personRepository.updatePerson(person0.getId(), "John2", "Doe2", "Street2", "M", "john@email.com");
+        personRepository.updatePerson(person0.getId(), "John2", "Doe2", "Street2", "M", "john1@email.com");
 
         entityManager.clear();
 
@@ -101,9 +118,36 @@ public class PersonRepositoryTest {
         assertNotNull(updatedPerson);
         assertEquals("John2", updatedPerson.getFirstName());
         assertEquals("Street2", updatedPerson.getAddress());
+        assertEquals("M", updatedPerson.getGender());
+        assertEquals("john1@email.com", updatedPerson.getEmail());
     }
 
     @Test
+    @Transactional
+    void testGivenNonExistentId_whenUpdatePerson_thenNoUpdateHappens() {
+        // given / arrange
+        personRepository.save(person0);
+
+        Long nonExistentId = 999L;
+
+        // when / act
+        personRepository.updatePerson(nonExistentId, "John2", "Doe2", "Street2", "M", "john1@email.com");
+
+        entityManager.clear();
+
+        Person originalPerson = personRepository.findById(person0.getId()).orElseThrow();
+
+        // then / assert
+        assertNotNull(originalPerson);
+        assertEquals("John", originalPerson.getFirstName()); 
+        assertEquals("Doe", originalPerson.getLastName());
+        assertEquals("Street", originalPerson.getAddress());
+        assertEquals("M", originalPerson.getGender());
+        assertEquals("john@email.com", originalPerson.getEmail());
+    }
+
+    @Test
+    @Transactional
     void testGivenPersonList_whenDeleteById_ThenReturnPerson() {
         // given / arrange
         personRepository.save(person0);

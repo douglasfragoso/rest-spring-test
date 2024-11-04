@@ -47,27 +47,6 @@ public class PersonControllerTest {
         }
 
         @Test
-        void testGivenPersonObject_whenSave_ThenReturnPerson() throws JsonProcessingException, Exception {
-                // given / arrange
-                given(personService.save(any(Person.class))).willAnswer((invocation) -> invocation.getArgument(0));
-
-                // when / act
-                ResultActions response = mockMvc.perform(post("/person")
-                                .contentType("application/json")
-                                .content(objectMapper.writeValueAsString(person)));
-
-                // then / assert
-                response.andDo(print())
-                                .andExpect(status().isCreated())
-                                .andExpect(jsonPath("$.firstName").value(person.getFirstName()))
-                                .andExpect(jsonPath("$.lastName").value(person.getLastName()))
-                                .andExpect(jsonPath("$.address").value(person.getAddress()))
-                                .andExpect(jsonPath("$.gender").value(person.getGender()))
-                                .andExpect(jsonPath("$.email").value(person.getEmail()));
-
-        }
-
-        @Test
         void testListPersonObject_whenFindAlll_ThenReturnListPerson() throws JsonProcessingException, Exception {
                 // given / arrange
                 Person person2 = new Person("John1", "Doe1", "Street1", "M", "john1@email.com");
@@ -92,8 +71,8 @@ public class PersonControllerTest {
         void testGivenPersonId_whenFindById_ThenReturnPerson() throws JsonProcessingException, Exception {
                 // given / arrange
                 Long id = 1L;
-                given(personService.findById(id)).willReturn(person); // Retorna diretamente a entidade 'person'
-
+                given(personService.findById(id)).willReturn(person); 
+                
                 // when / act
                 ResultActions response = mockMvc.perform(get("/person/id/{id}", id));
 
@@ -155,6 +134,42 @@ public class PersonControllerTest {
         }
 
         @Test
+        void testGivenPersonObject_whenSave_ThenReturnPerson() throws JsonProcessingException, Exception {
+                // given / arrange
+                given(personService.save(any(Person.class))).willAnswer((invocation) -> invocation.getArgument(0));
+
+                // when / act
+                ResultActions response = mockMvc.perform(post("/person")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(person)));
+
+                // then / assert
+                response.andDo(print())
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.firstName").value(person.getFirstName()))
+                                .andExpect(jsonPath("$.lastName").value(person.getLastName()))
+                                .andExpect(jsonPath("$.address").value(person.getAddress()))
+                                .andExpect(jsonPath("$.gender").value(person.getGender()))
+                                .andExpect(jsonPath("$.email").value(person.getEmail()));
+
+        }
+
+        @Test
+        void testGivenPersonObject_whenSave_ThenReturnEmailIsUsed() throws JsonProcessingException, Exception {
+                // given / arrange
+                given(personService.save(any(Person.class))).willThrow(new DatabaseException("Email already registered"));
+
+                // when / act
+                ResultActions response = mockMvc.perform(post("/person")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(person)));
+
+                // then / assert
+                response.andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.error").value("Email already registered"));
+        }
+
+        @Test
         void testGivenUpdatePerson_whenUpdate_ThenReturnUpdatePerson() throws JsonProcessingException, Exception {
                 // given / arrange
                 Long id = 1L;
@@ -168,7 +183,6 @@ public class PersonControllerTest {
                                 .contentType("application/json")
                                 .content(objectMapper.writeValueAsString(updatePerson)));
 
-                // then / assert
                 // then / assert
                 response.andDo(print())
                                 .andExpect(status().isOk())
@@ -194,7 +208,7 @@ public class PersonControllerTest {
         }
 
         @Test
-        void testGivenPersonId_whenDeleteById_ThenReturnString() throws JsonProcessingException, Exception {
+        void testGivenPersonId_whenDeleteById_ThenReturnNoContent() throws JsonProcessingException, Exception {
                 // given / arrange
                 Long id = 1L;
                 given(personService.findById(id)).willReturn(person);

@@ -28,7 +28,7 @@ public class PersonService {
     @Transactional(readOnly = true)
     public Person findByEmail(String email) {
         Person person = personRepository.findByEmail(email)
-                .orElseThrow(() -> new DatabaseException("Person not found, id does not exist: " + email));
+                .orElseThrow(() -> new DatabaseException("Person not found, email does not exist: " + email));
         return person;
     }
 
@@ -50,20 +50,21 @@ public class PersonService {
 
     @Transactional
     public Person update(Person person) {
-        try {
-            if (personRepository.existsById(person.getId()) == true)
-                personRepository.updatePerson(person.getId(), person.getFirstName(), person.getLastName(),
-                        person.getAddress(),
-                        person.getGender(), person.getEmail());
-            return person;
-        } catch (Exception e) {
+        if (!personRepository.existsById(person.getId())) {
             throw new DatabaseException("Person not found, id does not exist: " + person.getId());
         }
+
+        // Se a pessoa existir, atualiza os dados
+        personRepository.updatePerson(person.getId(), person.getFirstName(), person.getLastName(),
+                person.getAddress(), person.getGender(), person.getEmail());
+
+        return person;
     }
 
     @Transactional
     public void deleteById(Long id) {
-        personRepository.findById(id).orElseThrow(() -> new DatabaseException("Client not found, id does not exist: " + id));
+        personRepository.findById(id)
+                .orElseThrow(() -> new DatabaseException("Client not found, id does not exist: " + id));
         personRepository.deleteById(id);
     }
 

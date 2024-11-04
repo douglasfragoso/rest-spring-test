@@ -49,46 +49,6 @@ public class PersonServiceTest {
     }
 
     @Test
-    void testGivenPersonObject_whenSave_ThenReturPerson() {
-        // given / arrange
-        given(personRepository.findByEmail(anyString())).willReturn(Optional.empty());
-        given(personRepository.save(person0)).willReturn(person0);
-
-        // when / act
-        Person savedPerson = personService.save(person0);
-
-        // then / assert
-        assertNotNull(savedPerson);
-        assertEquals("John", savedPerson.getFirstName());
-    }
-
-    @Test
-    void testGivenPersonExistEmail_whenSave_ThenThrowsException() {
-        // given / arrange
-        given(personRepository.findByEmail(anyString())).willReturn(Optional.of(person0));
-
-        // when / act
-        assertThrows(RuntimeException.class, () -> personService.save(person0));
-
-        // then / assert
-        verify(personRepository, never()).save(any());
-    }
-
-    
-    @Test
-    void  testGivenPersonExistEmail_whenSave_ThenReturPerson() {
-        // given / arrange
-        given(personRepository.findByEmail(anyString())).willReturn(Optional.of(person0));
-
-        // when / act
-        Person savedPerson = personService.findByEmail("jhon@email.com");
-
-        // then / assert
-        assertNotNull(savedPerson);
-        assertEquals("John", savedPerson.getFirstName());
-    }
-
-    @Test
     void testGivenPersonList_whenFindAll_ThenReturnPersonList() {
         // given / arrange
         Person person1 = new Person("John1", "Doe1", "Street1", "M", "john1@email.com");
@@ -146,6 +106,58 @@ public class PersonServiceTest {
     }
 
     @Test
+    void testGivenPersonExistEmail_whenSave_ThenThrowsException() {
+        // given / arrange
+        given(personRepository.findByEmail(anyString())).willReturn(Optional.of(person0));
+
+        // when / act
+        assertThrows(DatabaseException.class, () -> personService.save(person0));
+
+        // then / assert
+        verify(personRepository, never()).save(any());
+    }
+
+    @Test
+    void testGivenPersonExistEmail_whenSave_ThenReturPerson() {
+        // given / arrange
+        given(personRepository.findByEmail(anyString())).willReturn(Optional.of(person0));
+
+        // when / act
+        Person savedPerson = personService.findByEmail("jhon@email.com");
+
+        // then / assert
+        assertNotNull(savedPerson);
+        assertEquals("John", savedPerson.getFirstName());
+    }
+
+    @Test
+    void testGivenEmail_whenFindByEmail_ThenThrowsException() {
+        // given / arrange
+        given(personRepository.findByEmail(anyString())).willReturn(Optional.empty());
+
+        // when / act & then / assert
+        Exception exception = assertThrows(DatabaseException.class,
+                () -> personService.findByEmail("unknown@email.com"));
+
+        // Verifica se a mensagem da exceção está correta
+        assertEquals("Person not found, email does not exist: unknown@email.com", exception.getMessage());
+    }
+
+    @Test
+    void testGivenPersonObject_whenSave_ThenReturPerson() {
+        // given / arrange
+        given(personRepository.findByEmail(anyString())).willReturn(Optional.empty());
+        given(personRepository.save(person0)).willReturn(person0);
+
+        // when / act
+        Person savedPerson = personService.save(person0);
+
+        // then / assert
+        assertNotNull(savedPerson);
+        assertEquals("John", savedPerson.getFirstName());
+    }
+
+    @Test
     void testGivenPersonId_whenUpdate_ThenReturnUpdatedPerson() {
         // given / arrange
         Person person1 = new Person("John2", "Doe2", "Street2", "M2", "john@email.com");
@@ -163,9 +175,22 @@ public class PersonServiceTest {
         assertEquals("John2", updatedPerson.getFirstName());
         assertEquals(person1.getEmail(), updatedPerson.getEmail());
         verify(personRepository, times(1)).updatePerson(
-            1L, "John2", "Doe2", "Street2", "M2", "john@email.com");
+                1L, "John2", "Doe2", "Street2", "M2", "john@email.com");
     }
 
+    @Test
+    void testGivenNonExistingPerson_whenUpdate_ThenThrowsException() {
+        // given / arrange
+        Person person1 = new Person("John2", "Doe2", "Street2", "M2", "john@email.com");
+        person1.setId(1L);
+
+        given(personRepository.existsById(1L)).willReturn(false);
+
+        // when / act & then / assert
+        Exception exception = assertThrows(DatabaseException.class, () -> personService.update(person1));
+
+        assertEquals("Person not found, id does not exist: " + person1.getId(), exception.getMessage());
+    }
 
     @Test
     void testGivenPersonId_whenDeleteById_thenPersonDeletedSuccessfully() {
@@ -180,6 +205,19 @@ public class PersonServiceTest {
 
         // then / assert
         verify(personRepository, times(1)).deleteById(personId);
+    }
+
+    @Test
+    void testGivenNonExistingPerson_whenDeleteById_ThenThrowsException() {
+        // given / arrange
+        Long personId = 1L;
+        given(personRepository.findById(anyLong())).willReturn(Optional.empty());
+
+        // when / act & then / assert
+        Exception exception = assertThrows(DatabaseException.class, () -> personService.deleteById(personId));
+
+        // Verifica se a mensagem da exceção está correta
+        assertEquals("Client not found, id does not exist: " + personId, exception.getMessage());
     }
 
 }

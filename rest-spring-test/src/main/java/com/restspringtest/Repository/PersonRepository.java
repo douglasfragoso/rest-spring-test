@@ -18,5 +18,4 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 
     Optional<Person> findByEmail(String email);
 
-    boolean existsById(@SuppressWarnings("null") Long id);
 }
