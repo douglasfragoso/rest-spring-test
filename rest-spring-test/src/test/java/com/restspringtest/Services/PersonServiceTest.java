@@ -1,4 +1,4 @@
-package com.restspringtest.Serviços;
+package com.restspringtest.Services;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -22,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 
 import com.restspringtest.Model.Person;
 import com.restspringtest.Repository.PersonRepository;
-import com.restspringtest.Services.PersonService;
 import com.restspringtest.Services.Exception.DatabaseException;
 
 import jakarta.persistence.EntityManager;
