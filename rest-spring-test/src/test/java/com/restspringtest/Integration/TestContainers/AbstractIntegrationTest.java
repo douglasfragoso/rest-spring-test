@@ -1,4 +1,4 @@
-package com.restspringtest.Integration;
+package com.restspringtest.Integration.TestContainers;
 
 import java.util.Map;
 import java.util.stream.Stream;

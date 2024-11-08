@@ -1,21 +1,9 @@
-# the server is to run on port 8888 in test environment
-server:
-  port: 8888
-#spring boot application name and driver to mysql
 spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: sa
-    password:
-  #database especification
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-  defer-datasource-initialization: true
+  # define active profile
+  profiles:
+    active: prod
+  application:
+    name: test-rest-spring
   #this property is used to defer the datasource initialization
   mvc:
     throw-exception-if-no-handler-found: true
