@@ -124,20 +124,22 @@ profiles:
 mvn clean test
 ```
 
-automaticamente será criado os relatórios do JaCoCo, inclusive em HTML e do Surefire em XML.
+automaticamente será criado os relatórios do JaCoCo, inclusive em HTML e do Surefire em XML. O caminho para o *index.html* do JaCoCo é:
 
-
-[Caminho JaCoCo Report](rest-spring-test/target/site/jacoco/index.html)
+```sh
+cd (folder)\rest-spring-test\rest-spring-test\target\site\jacoco
+```
 
 8. No terminal, adicione o comando Maven a seguir para criar relatório HTML do Surefire:
 
 ```sh
 mvn site 
 ```
+O caminho para o *surefire-report.html* é:
 
-[Caminho Surefire Report](rest-spring-test/target/site/surefire-report.html)
-
-
+```sh
+cd (folder)\rest-spring-test\rest-spring-test\target\site
+```
 
 
   Feito com carinho por Douglas Fragoso 👊
