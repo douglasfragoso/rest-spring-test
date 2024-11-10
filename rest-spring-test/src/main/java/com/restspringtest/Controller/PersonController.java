@@ -56,8 +56,7 @@ public class PersonController {
         @GetMapping(value = "/email/{email}")
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "Successfully find by Email", content = @Content(schema = @Schema(implementation = Person.class))),
-                        @ApiResponse(responseCode = "404", description = "Not found or No handler found", content = @Content(schema = @Schema(implementation = StandartError.class))),
-                        @ApiResponse(responseCode = "400", description = "Type mismatch", content = @Content(schema = @Schema(implementation = ValidationError.class))) })
+                        @ApiResponse(responseCode = "404", description = "Not found or No handler found", content = @Content(schema = @Schema(implementation = StandartError.class)))})
         @Operation(summary = "Find Person", description = "Find Person by Email", tags = { "GET" })
         public ResponseEntity<Person> findByEmail(
                         @PathVariable("email") @Parameter(description = "Email of the Person", example = "joe@email.com") String email) {
@@ -77,7 +76,7 @@ public class PersonController {
         @PostMapping
         @ApiResponses({
                         @ApiResponse(responseCode = "201", description = "Successfully created", content = @Content(schema = @Schema(implementation = Person.class))),
-                        @ApiResponse(responseCode = "400", description = "Invalid requests", content = @Content(schema = @Schema(implementation = ValidationError.class))) })
+                        @ApiResponse(responseCode = "400", description = "Invalid requests or Email already exist", content = @Content(schema = @Schema(implementation = ValidationError.class))) })
         @Operation(summary = "Insert Person", description = "Insert Person", tags = { "POST" })
         public ResponseEntity<Person> save(
                         @Validated(Create.class) @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Insert Person", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Person.class), examples = @ExampleObject(value = "{\"firstName\": \"Joe\", \"lastName\": \"Doe\", \"address\": \"1234 Main St\", \"gender\": \"M\" }"))) @RequestBody Person person) {

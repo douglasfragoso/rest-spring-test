@@ -1,7 +1,7 @@
 spring:
   # define active profile
   profiles:
-    active: prod
+    active: test
   application:
     name: test-rest-spring
   #this property is used to defer the datasource initialization
