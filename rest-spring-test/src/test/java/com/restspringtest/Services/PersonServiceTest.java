@@ -93,15 +93,16 @@ public class PersonServiceTest {
     }
 
     @Test
-    void testGivenPersonId_whenFindById_ThenThrowsException() {
+    void testGivenId_whenFindById_ThenThrowsException() {
         // given / arrange
-        given(personRepository.findById(anyLong())).willThrow(new DatabaseException("Person not found"));
+        given(personRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // when / act & then / assert
-        Exception exception = assertThrows(DatabaseException.class, () -> personService.findById(1L));
+        Exception exception = assertThrows(DatabaseException.class,
+                () -> personService.findById(1L));
 
         // Verifica se a mensagem da exceção está correta
-        assertEquals("Person not found", exception.getMessage());
+        assertEquals("Person not found, id: 1", exception.getMessage());
     }
 
     @Test
@@ -139,7 +140,7 @@ public class PersonServiceTest {
                 () -> personService.findByEmail("unknown@email.com"));
 
         // Verifica se a mensagem da exceção está correta
-        assertEquals("Person not found, email does not exist: unknown@email.com", exception.getMessage());
+        assertEquals("Person not found, email: unknown@email.com", exception.getMessage());
     }
 
     @Test
@@ -157,24 +158,21 @@ public class PersonServiceTest {
     }
 
     @Test
-    void testGivenPersonId_whenUpdate_ThenReturnUpdatedPerson() {
+    void testGivenPersonId_whenUpdate_thenReturnNothing() {
         // given / arrange
         Person person1 = new Person("John2", "Doe2", "Street2", "M2", "john@email.com");
-        person1.setId(1L); // Certifique-se de que o ID está correto e configurado
+        person1.setId(1L);
 
-        given(personRepository.existsById(1L)).willReturn(true);
+        given(personRepository.findById(1L)).willReturn(Optional.of(person1)); 
 
         doNothing().when(personRepository).updatePerson(
                 1L, "John2", "Doe2", "Street2", "M2", "john@email.com");
 
         // when / act
-        Person updatedPerson = personService.update(person1);
+        personService.update(person1); 
 
-        // then / assert
-        assertEquals("John2", updatedPerson.getFirstName());
-        assertEquals(person1.getEmail(), updatedPerson.getEmail());
-        verify(personRepository, times(1)).updatePerson(
-                1L, "John2", "Doe2", "Street2", "M2", "john@email.com");
+        // Assert
+        verify(personRepository, times(1)).updatePerson(1L, "John2", "Doe2", "Street2", "M2", "john@email.com");
     }
 
     @Test
@@ -183,16 +181,16 @@ public class PersonServiceTest {
         Person person1 = new Person("John2", "Doe2", "Street2", "M2", "john@email.com");
         person1.setId(1L);
 
-        given(personRepository.existsById(1L)).willReturn(false);
+        given(personRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // when / act & then / assert
         Exception exception = assertThrows(DatabaseException.class, () -> personService.update(person1));
 
-        assertEquals("Person not found, id does not exist: " + person1.getId(), exception.getMessage());
+        assertEquals("Person not found, id: " + person1.getId(), exception.getMessage());
     }
 
     @Test
-    void testGivenPersonId_whenDeleteById_thenPersonDeletedSuccessfully() {
+    void testGivenPersonId_whenDeleteById_thenReturnNothing() {
         // given / arrange
         Long personId = 1L;
 
@@ -216,7 +214,7 @@ public class PersonServiceTest {
         Exception exception = assertThrows(DatabaseException.class, () -> personService.deleteById(personId));
 
         // Verifica se a mensagem da exceção está correta
-        assertEquals("Client not found, id does not exist: " + personId, exception.getMessage());
+        assertEquals("Person not found, id: " + personId, exception.getMessage());
     }
 
 }

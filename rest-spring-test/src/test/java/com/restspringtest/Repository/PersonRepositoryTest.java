@@ -33,6 +33,7 @@ public class PersonRepositoryTest extends AbstractIntegrationTest {
     @BeforeEach
     // given / arrange
     public void setUp() {
+        personRepository.deleteAll();
         person0 = new Person("John", "Doe", "Street", "M", "john@email.com");
     }
 
@@ -95,6 +96,7 @@ public class PersonRepositoryTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Transactional
     void testGivenPersonObject_whenSave_ThenReturPerson() {
         // when / act
         Person savedPerson = personRepository.save(person0);
